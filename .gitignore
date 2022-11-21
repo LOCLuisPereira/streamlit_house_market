@@ -1,3 +1,8 @@
+.DS_Store/
+Legacy/
+Predictors/
+Data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
