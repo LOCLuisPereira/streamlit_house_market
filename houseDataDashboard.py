@@ -12,7 +12,6 @@ import streamlit as st
 import altair as alt
 import pandas as pd
 import numpy as np
-import math
 
 st.set_page_config(
     page_title = 'House Data EDA',
@@ -113,8 +112,8 @@ col3.metric(
 
 # MAP
 df_map = pd.DataFrame({'lat':df['lat'], 'lon':df['long']})
-st.header('Houses\' Location.')
-st.map(df_map, zoom=9)
+st.header('House Distribution.')
+st.map(df_map, zoom=10)
 
 
 
@@ -137,7 +136,7 @@ with col1 :
         # tooltip=['brand', 'vicinity'])
     #).project("albersUsa")
     ).project('equirectangular')
-    st.header('Splitting the houses into groups')
+    st.header('House Clusters')
     st.altair_chart(points, use_container_width=True)
     st.caption('The map show how the houses distribute themselves other the available clusters')
 
@@ -149,7 +148,7 @@ with col2 :
     df_cluster = df_cluster[['cluster', 'price']].groupby('cluster').price.mean().reset_index()
     df_cluster.rename(columns={0:'value'}, inplace=True)
     df_cluster.set_index('cluster')
-    st.header('Clusters - Mean House Price')
+    st.header('Cluster-Price')
     st.dataframe(df_cluster)
 
 
@@ -237,20 +236,20 @@ st.line_chart(df_, x='date_string', y='count')
 st.header('The bedroom-bathroom count.')
 st.caption('In the dataset, there was a sneaky outlier. To keep the graph elegant, we eliminated it from the dataframe.')
 
-df_bedbath = df[df['bedrooms']<16].groupby(['bedrooms', 'bathrooms']).size().reset_index()
-df_bedbath.rename( columns={0:'count'}, inplace=True )
+df_bedbath = df[df['bedrooms']<16].groupby(['bedrooms', 'bathrooms']).price.mean().reset_index()
+df_bedbath.rename( columns={0:'mean_price'}, inplace=True )
+print(df_bedbath)
 
-xbin = df_bedbath.bathrooms.unique().shape[0]
+xbin = df_bedbath.bathrooms.unique().shape[0]  / 2
 ybin = df_bedbath.bedrooms.unique().shape[0]
 
 heatmap = alt.Chart(df_bedbath).mark_rect().encode(
     alt.X('bedrooms', bin=alt.Bin(maxbins=xbin)),
     alt.Y('bathrooms', bin=alt.Bin(maxbins=ybin)),
-    color='count',
+    color='price',
 )
 
 st.altair_chart(heatmap, use_container_width=True)
-
 
 
 
@@ -335,14 +334,13 @@ if submitted :
 
     with c1 :
         c1.title('Bayesian Ridge')
-        c1.caption('R2 score on train: 0.542')
+        c1.caption('R2 score: 0.542')
         c1.text( f'Estimated value: {round(bayesianRidgePredictor.predict( xs )[0] )} $' )
-        c1.caption('Well! Do not except much from this, the predictor is bananas! It only serves as a reminder that a predictor without capability to generalize is useless.')
         c1.caption('The model is so good, that he tells us that some business can lead to getting a house and recieve money to keep the house...')
 
     with c2 :
         c2.title('Random Forest')
-        c2.caption('R2 score on train: 0.867')
+        c2.caption('R2 score: 0.867')
         c2.text( f'Estimated value: {round(randomForest.predict( xs )[0] )} $' )
 
 
