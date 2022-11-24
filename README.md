@@ -15,3 +15,6 @@
 
 # Second Note.
 - To run everything from the dashboard, run the other scripts first
+
+# Check my Medium article.
+https://medium.com/@luiscavacapereira/first-str-82848e202372.
